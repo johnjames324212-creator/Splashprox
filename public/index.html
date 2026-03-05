@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SPLASH PROXY ENGINE</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323&family=Orbitron:wght@700;900&display=swap');
+:root{--g:#00ff41;--gd:#00bb30;--gx:#003d0e;--bg:#080c08;--bg2:#0d130d}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--g);font-family:'Share Tech Mono',monospace;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;cursor:crosshair}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,255,65,.025) 2px,rgba(0,255,65,.025) 4px);pointer-events:none;z-index:9999}
+body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 80% at 50% 50%,transparent 55%,rgba(0,0,0,.8) 100%);pointer-events:none;z-index:9998}
+.card{border:1px solid var(--gd);background:var(--bg2);padding:36px;max-width:560px;width:100%;position:relative;z-index:10;box-shadow:0 0 40px rgba(0,255,65,.1)}
+.logo{font-family:'VT323',monospace;font-size:3rem;letter-spacing:4px;text-shadow:0 0 20px rgba(0,255,65,.5);margin-bottom:4px}
+.sub{font-size:.65rem;color:var(--gd);letter-spacing:3px;margin-bottom:28px}
+.status-row{display:flex;align-items:center;gap:8px;margin-bottom:24px;padding:10px 14px;border:1px solid var(--gx);background:rgba(0,255,65,.04)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--g);box-shadow:0 0 8px var(--g);animation:pulse 1.2s ease-in-out infinite;flex-shrink:0}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.2}}
+.status-text{font-size:.72rem;color:var(--g)}
+.label{font-size:.6rem;color:var(--gd);letter-spacing:2px;margin-bottom:6px;display:block}
+.search-box{display:flex;border:1px solid var(--gd);background:rgba(0,255,65,.04);padding:0 14px;margin-bottom:20px;transition:all .2s}
+.search-box:focus-within{border-color:var(--g);box-shadow:0 0 16px rgba(0,255,65,.15)}
+.prompt{color:var(--g);font-size:1rem;margin-right:8px;flex-shrink:0;padding:14px 0}
+.sinput{flex:1;background:transparent;border:none;outline:none;color:var(--g);font-family:'Share Tech Mono',monospace;font-size:.9rem;padding:14px 0;caret-color:var(--g)}
+.sinput::placeholder{color:rgba(0,255,65,.3)}
+.go{background:var(--g);border:none;color:var(--bg);font-family:'Orbitron',monospace;font-size:.62rem;font-weight:700;letter-spacing:2px;padding:8px 16px;cursor:pointer;transition:all .15s;flex-shrink:0}
+.go:hover{filter:brightness(1.15);box-shadow:0 0 14px rgba(0,255,65,.4)}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px}
+.info-item{border:1px solid var(--gx);padding:10px 12px}
+.info-label{font-size:.55rem;color:var(--gd);letter-spacing:2px;display:block;margin-bottom:3px}
+.info-val{font-size:.8rem;color:var(--g);display:block}
+.copy-row{display:flex;gap:8px;align-items:stretch}
+.url-display{flex:1;border:1px solid var(--gx);background:rgba(0,255,65,.04);padding:10px 12px;font-size:.72rem;color:var(--g);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.copy-btn{background:transparent;border:1px solid var(--gd);color:var(--g);font-family:'Share Tech Mono',monospace;font-size:.65rem;letter-spacing:1px;padding:8px 16px;cursor:pointer;transition:all .15s;white-space:nowrap}
+.copy-btn:hover{background:rgba(0,255,65,.1);border-color:var(--g)}
+.hint{font-size:.58rem;color:rgba(0,255,65,.4);margin-top:10px;line-height:1.7;letter-spacing:.5px}
+.splash-link{display:block;text-align:center;margin-top:18px;border:1px solid var(--gx);padding:10px;font-size:.65rem;color:var(--gd);letter-spacing:2px;text-decoration:none;transition:all .15s}
+.splash-link:hover{border-color:var(--g);color:var(--g);background:rgba(0,255,65,.06)}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">SPLASH</div>
+  <div class="sub">// PROXY ENGINE — ONLINE //</div>
+
+  <div class="status-row">
+    <div class="dot"></div>
+    <span class="status-text">SERVER ONLINE · READY TO PROXY</span>
+  </div>
+
+  <div class="info-grid">
+    <div class="info-item">
+      <span class="info-label">ENGINE TYPE</span>
+      <span class="info-val">SPLASH-PROXY</span>
+    </div>
+    <div class="info-item">
+      <span class="info-label">FORMAT</span>
+      <span class="info-val">/?url=</span>
+    </div>
+    <div class="info-item">
+      <span class="info-label">STATUS</span>
+      <span class="info-val" id="statusVal">CHECKING...</span>
+    </div>
+    <div class="info-item">
+      <span class="info-label">SERVER TIME</span>
+      <span class="info-val" id="serverTime">--:--:--</span>
+    </div>
+  </div>
+
+  <span class="label">TEST THE PROXY</span>
+  <div class="search-box">
+    <span class="prompt">&gt;_</span>
+    <input class="sinput" id="testInput" placeholder="https://example.com" spellcheck="false"/>
+    <button class="go" onclick="testProxy()">GO</button>
+  </div>
+
+  <span class="label">YOUR PROXY URL — PASTE INTO SPLASH</span>
+  <div class="copy-row">
+    <div class="url-display" id="proxyUrl">loading...</div>
+    <button class="copy-btn" onclick="copyUrl()">COPY</button>
+  </div>
+
+  <div class="hint">
+    ① Copy the URL above<br>
+    ② Open SPLASH → click "+ ENGINE"<br>
+    ③ Paste this URL · Format: <strong style="color:var(--g)">/?url=</strong><br>
+    ④ Click ADD ENGINE — done!
+  </div>
+</div>
+
+<script>
+const base = window.location.origin;
+document.getElementById('proxyUrl').textContent = base;
+
+// Health check
+fetch('/health').then(r=>r.json()).then(d=>{
+  document.getElementById('statusVal').textContent = 'ONLINE';
+  document.getElementById('serverTime').textContent = new Date(d.time).toTimeString().split(' ')[0];
+}).catch(()=>{
+  document.getElementById('statusVal').textContent = 'ERROR';
+});
+
+function testProxy(){
+  let url = document.getElementById('testInput').value.trim();
+  if(!url) return;
+  if(!/^https?:\/\//i.test(url)) url='https://'+url;
+  window.open('/proxy?url='+encodeURIComponent(url),'_blank','noopener');
+}
+
+document.getElementById('testInput').addEventListener('keydown',e=>{
+  if(e.key==='Enter') testProxy();
+});
+
+function copyUrl(){
+  navigator.clipboard.writeText(base).then(()=>{
+    const btn=document.querySelector('.copy-btn');
+    btn.textContent='COPIED!';
+    setTimeout(()=>btn.textContent='COPY',1500);
+  });
+}
+</script>
+</body>
+</html>
